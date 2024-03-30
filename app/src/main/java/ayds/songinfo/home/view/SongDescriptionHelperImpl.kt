@@ -18,8 +18,41 @@ internal class SongDescriptionHelperImpl : SongDescriptionHelper {
                 }\n" +
                         "Artist: ${song.artistName}\n" +
                         "Album: ${song.albumName}\n" +
-                        "Year: ${song.year}"
+                        "Release date: " +
+                                when(song.releaseDatePrecision) {
+                                    "year" -> song.releaseDate + if(esbiciesto(song.releaseDate.toInt())) " (Leap year)" else " (Not a leap year)"
+                                    "month" -> song.releaseDate.split("-").let {
+                                        convertirAMes(it[1]) + ", " + it[0]
+                                    }
+                                    "day" ->  song.releaseDate.split("-").let {
+                                        it[2] + "/" + it[1] + "/" + it[0]
+                                    }
+                                    else -> "Unknown"
+                                }
             else -> "Song not found"
         }
     }
+
+    private fun esbiciesto(year: Int): Boolean {
+        return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
+    }
+
+    private fun convertirAMes(mes:String):String{
+        return when(mes){
+            "01" -> "January"
+            "02" -> "February"
+            "03" -> "March"
+            "04" -> "April"
+            "05" -> "May"
+            "06" -> "June"
+            "07" -> "July"
+            "08" -> "August"
+            "09" -> "September"
+            "10" -> "October"
+            "11" -> "November"
+            "12" -> "December"
+            else -> "Unknown"
+        }
+    }
+
 }
