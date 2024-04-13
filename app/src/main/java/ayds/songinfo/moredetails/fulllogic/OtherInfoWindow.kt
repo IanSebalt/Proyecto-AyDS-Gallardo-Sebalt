@@ -50,7 +50,7 @@ class OtherInfoWindow : Activity() {
             var textToShowInArticle = ""
 
             textToShowInArticle = if (articleInDataBase != null) {
-                getArticleFromDataBase(textToShowInArticle, articleInDataBase)
+                getArticleFromDataBase(articleInDataBase)
             } else {
                 getArticleFromService(lastFMAPI, artistName, textToShowInArticle)
             }
@@ -65,21 +65,18 @@ class OtherInfoWindow : Activity() {
     }
 
     private fun getArticleFromDataBase(
-        textToShowInArticle: String,
         articleInDataBase: ArticleEntity
     ): String {
-        var textToShowInArticle1 = textToShowInArticle
-        textToShowInArticle1 = "[*]" + articleInDataBase.biography
+        val textToShowInArticle1 = "[*]" + articleInDataBase.biography
         setViewArticleButton(articleInDataBase.articleUrl)
         return textToShowInArticle1
     }
 
     private fun getArticleFromService(
         lastFMAPI: LastFMAPI,
-        artistName: String,
-        text: String
+        artistName: String
     ): String {
-        var articleText = text
+        var articleText = ""
         val artistCallResponse: Response<String>
         try {
             artistCallResponse = lastFMAPI.getArtistInfo(artistName).execute()
