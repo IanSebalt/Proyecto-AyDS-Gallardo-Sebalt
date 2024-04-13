@@ -53,51 +53,9 @@ class OtherInfoWindow : Activity() {
             var text = ""
             if (article != null) { // exists in db
                 text = "[*]" + article.biography
-                val urlString = article.articleUrl
-                findViewById<View>(R.id.openUrlButton1).setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.setData(Uri.parse(urlString))
-                    startActivity(intent)
-                }
+                getArticleFromDataBase(article)
             } else { // get from service
-                val callResponse: Response<String>
-                try {
-                    callResponse = lastFMAPI.getArtistInfo(artistName).execute()
-                    Log.e("TAG", "JSON " + callResponse.body())
-                    val gson = Gson()
-                    val jobj = gson.fromJson(callResponse.body(), JsonObject::class.java)
-                    val artist = jobj["artist"].getAsJsonObject()
-                    val bio = artist["bio"].getAsJsonObject()
-                    val extract = bio["content"]
-                    val url = artist["url"]
-                    if (extract == null) {
-                        text = "No Results"
-                    } else {
-                        text = extract.asString.replace("\\n", "\n")
-                        text = textToHtml(text, artistName)
-
-
-                        // save to DB  <o/
-                        val text2 = text
-                        Thread {
-                            dataBase!!.ArticleDao().insertArticle(
-                                ArticleEntity(
-                                    artistName, text2, url.asString
-                                )
-                            )
-                        }
-                            .start()
-                    }
-                    val urlString = url.asString
-                    findViewById<View>(R.id.openUrlButton1).setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.setData(Uri.parse(urlString))
-                        startActivity(intent)
-                    }
-                } catch (e1: IOException) {
-                    Log.e("TAG", "Error $e1")
-                    e1.printStackTrace()
-                }
+                text = getArticleFromService(lastFMAPI, artistName, text)
             }
             val imageUrl =
                 "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
@@ -108,6 +66,62 @@ class OtherInfoWindow : Activity() {
                 textPane1!!.text = Html.fromHtml(finalText)
             }
         }.start()
+    }
+
+    private fun getArticleFromService(
+        lastFMAPI: LastFMAPI,
+        artistName: String,
+        text: String
+    ): String {
+        var text1 = text
+        val callResponse: Response<String>
+        try {
+            callResponse = lastFMAPI.getArtistInfo(artistName).execute()
+            Log.e("TAG", "JSON " + callResponse.body())
+            val gson = Gson()
+            val jobj = gson.fromJson(callResponse.body(), JsonObject::class.java)
+            val artist = jobj["artist"].getAsJsonObject()
+            val bio = artist["bio"].getAsJsonObject()
+            val extract = bio["content"]
+            val url = artist["url"]
+            if (extract == null) {
+                text1 = "No Results"
+            } else {
+                text1 = extract.asString.replace("\\n", "\n")
+                text1 = textToHtml(text1, artistName)
+
+
+                // save to DB  <o/
+                val text2 = text1
+                Thread {
+                    dataBase!!.ArticleDao().insertArticle(
+                        ArticleEntity(
+                            artistName, text2, url.asString
+                        )
+                    )
+                }
+                    .start()
+            }
+            val urlString = url.asString
+            findViewById<View>(R.id.openUrlButton1).setOnClickListener {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.setData(Uri.parse(urlString))
+                startActivity(intent)
+            }
+        } catch (e1: IOException) {
+            Log.e("TAG", "Error $e1")
+            e1.printStackTrace()
+        }
+        return text1
+    }
+
+    private fun getArticleFromDataBase(article: ArticleEntity) {
+        val urlString = article.articleUrl
+        findViewById<View>(R.id.openUrlButton1).setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setData(Uri.parse(urlString))
+            startActivity(intent)
+        }
     }
 
     private var dataBase: ArticleDatabase? = null
