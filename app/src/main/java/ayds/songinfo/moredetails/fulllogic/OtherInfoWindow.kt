@@ -22,50 +22,56 @@ import java.io.IOException
 import java.util.Locale
 
 class OtherInfoWindow : Activity() {
-    private var textPane1: TextView? = null
+    private var articleTextPanel: TextView? = null
 
-    //private JPanel imagePanel;
-    // private JLabel posterImageLabel;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
-        textPane1 = findViewById(R.id.textPane1)
+        articleTextPanel = findViewById(R.id.textPane1)
         open(intent.getStringExtra("artistName"))
     }
 
     private fun getARtistInfo(artistName: String?) {
-
-        // create
         val retrofit = Retrofit.Builder()
             .baseUrl("https://ws.audioscrobbler.com/2.0/")
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
         val lastFMAPI = retrofit.create(LastFMAPI::class.java)
         Log.e("TAG", "artistName $artistName")
-        createArticleThread(artistName, lastFMAPI)
+        createArticle(artistName, lastFMAPI)
     }
 
-    private fun createArticleThread(
+    private fun createArticle(
         artistName: String?,
         lastFMAPI: LastFMAPI
     ) {
         Thread {
-            val article = dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
+            val articleInDataBase = dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
             var textToShowInArticle = ""
-            if (article != null) {
-                textToShowInArticle = "[*]" + article.biography
-                getArticleFromDataBase(article)
+
+            textToShowInArticle = if (articleInDataBase != null) {
+                getArticleFromDataBase(textToShowInArticle, articleInDataBase)
             } else {
-                textToShowInArticle = getArticleFromService(lastFMAPI, artistName, textToShowInArticle)
+                getArticleFromService(lastFMAPI, artistName, textToShowInArticle)
             }
-            val imageUrl =
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
+
+            val imageUrl ="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
             Log.e("TAG", "Get Image from $imageUrl")
             runOnUiThread {
                 Picasso.get().load(imageUrl).into(findViewById<View>(R.id.imageView1) as ImageView)
-                textPane1!!.text = Html.fromHtml(textToShowInArticle)
+                articleTextPanel!!.text = Html.fromHtml(textToShowInArticle)
             }
         }.start()
+    }
+
+    private fun getArticleFromDataBase(
+        textToShowInArticle: String,
+        articleInDataBase: ArticleEntity
+    ): String {
+        var textToShowInArticle1 = textToShowInArticle
+        textToShowInArticle1 = "[*]" + articleInDataBase.biography
+        setViewArticleButton(articleInDataBase.articleUrl)
+        return textToShowInArticle1
     }
 
     private fun getArticleFromService(
@@ -90,11 +96,9 @@ class OtherInfoWindow : Activity() {
                 articleText = textToHtml(articleText, artistName)
                 saveArticleInDataBase(artistName, articleText, articleUrl)
             }
-            findViewById<View>(R.id.openUrlButton1).setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setData(Uri.parse(articleUrl.asString))
-                startActivity(intent)
-            }
+
+            setViewArticleButton(articleUrl.asString)
+
         } catch (e1: IOException) {
             Log.e("TAG", "Error $e1")
             e1.printStackTrace()
@@ -117,8 +121,9 @@ class OtherInfoWindow : Activity() {
             .start()
     }
 
-    private fun getArticleFromDataBase(article: ArticleEntity) {
-        val urlString = article.articleUrl
+
+
+    private fun setViewArticleButton(urlString: String) {
         findViewById<View>(R.id.openUrlButton1).setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setData(Uri.parse(urlString))
