@@ -32,13 +32,16 @@ class OtherInfoWindow : Activity() {
     }
 
     private fun getARtistInfo(artistName: String?) {
+        Log.e("TAG", "artistName $artistName")
+        createArticle(artistName, lastFMAPIURLBuilder())
+    }
+
+    private fun lastFMAPIURLBuilder(): LastFMAPI {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://ws.audioscrobbler.com/2.0/")
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
-        val lastFMAPI = retrofit.create(LastFMAPI::class.java)
-        Log.e("TAG", "artistName $artistName")
-        createArticle(artistName, lastFMAPI)
+        return retrofit.create(LastFMAPI::class.java)
     }
 
     private fun createArticle(
@@ -47,9 +50,7 @@ class OtherInfoWindow : Activity() {
     ) {
         Thread {
             val articleInDataBase = dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
-            var textToShowInArticle = ""
-
-            textToShowInArticle = if (articleInDataBase != null) {
+            val textToShowInArticle = if (articleInDataBase != null) {
                 getArticleFromDataBase(articleInDataBase)
             } else {
                 getArticleFromService(lastFMAPI, artistName)
