@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.room.Room.databaseBuilder
 import ayds.songinfo.R
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
 import retrofit2.Response
@@ -50,20 +51,19 @@ class OtherInfoWindow : Activity() {
     ) {
         Thread {
             val article = dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
-            var text = ""
-            if (article != null) { // exists in db
-                text = "[*]" + article.biography
+            var textToShowInArticle = ""
+            if (article != null) {
+                textToShowInArticle = "[*]" + article.biography
                 getArticleFromDataBase(article)
-            } else { // get from service
-                text = getArticleFromService(lastFMAPI, artistName, text)
+            } else {
+                textToShowInArticle = getArticleFromService(lastFMAPI, artistName, textToShowInArticle)
             }
             val imageUrl =
                 "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
             Log.e("TAG", "Get Image from $imageUrl")
-            val finalText = text
             runOnUiThread {
                 Picasso.get().load(imageUrl).into(findViewById<View>(R.id.imageView1) as ImageView)
-                textPane1!!.text = Html.fromHtml(finalText)
+                textPane1!!.text = Html.fromHtml(textToShowInArticle)
             }
         }.start()
     }
@@ -73,46 +73,48 @@ class OtherInfoWindow : Activity() {
         artistName: String,
         text: String
     ): String {
-        var text1 = text
-        val callResponse: Response<String>
+        var articleText = text
+        val artistCallResponse: Response<String>
         try {
-            callResponse = lastFMAPI.getArtistInfo(artistName).execute()
-            Log.e("TAG", "JSON " + callResponse.body())
-            val gson = Gson()
-            val jobj = gson.fromJson(callResponse.body(), JsonObject::class.java)
-            val artist = jobj["artist"].getAsJsonObject()
-            val bio = artist["bio"].getAsJsonObject()
-            val extract = bio["content"]
-            val url = artist["url"]
-            if (extract == null) {
-                text1 = "No Results"
+            artistCallResponse = lastFMAPI.getArtistInfo(artistName).execute()
+            Log.e("TAG", "JSON " + artistCallResponse.body())
+            val dataJson = Gson().fromJson(artistCallResponse.body(), JsonObject::class.java)
+            val artist = dataJson["artist"].getAsJsonObject()
+            val artistBiographyContent = artist["bio"].getAsJsonObject()["content"]
+            val articleUrl = artist["url"]
+
+            if (artistBiographyContent == null) {
+                articleText = "No Results"
             } else {
-                text1 = extract.asString.replace("\\n", "\n")
-                text1 = textToHtml(text1, artistName)
-
-
-                // save to DB  <o/
-                val text2 = text1
-                Thread {
-                    dataBase!!.ArticleDao().insertArticle(
-                        ArticleEntity(
-                            artistName, text2, url.asString
-                        )
-                    )
-                }
-                    .start()
+                articleText = artistBiographyContent.asString.replace("\\n", "\n")
+                articleText = textToHtml(articleText, artistName)
+                saveArticleInDataBase(artistName, articleText, articleUrl)
             }
-            val urlString = url.asString
             findViewById<View>(R.id.openUrlButton1).setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW)
-                intent.setData(Uri.parse(urlString))
+                intent.setData(Uri.parse(articleUrl.asString))
                 startActivity(intent)
             }
         } catch (e1: IOException) {
             Log.e("TAG", "Error $e1")
             e1.printStackTrace()
         }
-        return text1
+        return articleText
+    }
+
+    private fun saveArticleInDataBase(
+        artistName: String,
+        articleText: String,
+        articleUrl: JsonElement
+    ) {
+        Thread {
+            dataBase!!.ArticleDao().insertArticle(
+                ArticleEntity(
+                    artistName, articleText, articleUrl.asString
+                )
+            )
+        }
+            .start()
     }
 
     private fun getArticleFromDataBase(article: ArticleEntity) {
