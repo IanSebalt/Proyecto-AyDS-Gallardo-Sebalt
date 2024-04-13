@@ -4,15 +4,13 @@ import ayds.songinfo.home.model.entities.Song.EmptySong
 import ayds.songinfo.home.model.entities.Song
 import ayds.songinfo.home.model.entities.Song.SpotifySong
 import ayds.songinfo.utils.UtilsInjector
-import ayds.songinfo.utils.view.DateConversor
 
 
 interface SongDescriptionHelper {
     fun getSongDescriptionText(song: Song = EmptySong): String
 }
 
-internal class SongDescriptionHelperImpl : SongDescriptionHelper {
-    private val dateConversor: DateConversor = UtilsInjector.dateConversor
+internal class SongDescriptionHelperImpl(private val releaseDateResolverFactory: ReleaseDateResolverFactory) : SongDescriptionHelper {
     override fun getSongDescriptionText(song: Song): String {
 
         return when (song) {
@@ -23,8 +21,9 @@ internal class SongDescriptionHelperImpl : SongDescriptionHelper {
                 }\n" +
                         "Artist: ${song.artistName}\n" +
                         "Album: ${song.albumName}\n" +
-                        "Release date: " +
-                        dateConversor.convertDate(song.releaseDate, song.releaseDatePrecision)
+                        "Release date: ${
+                            releaseDateResolverFactory.getReleaseDateResolver(song).getReleaseDate()
+                        }"
             else -> "Song not found"
         }
     }
