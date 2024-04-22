@@ -23,16 +23,17 @@ import java.util.Locale
 
 class OtherInfoWindow : Activity() {
     private var articleTextPanel: TextView? = null
+    private var dataBase: ArticleDatabase? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
         articleTextPanel = findViewById(R.id.textPane1)
-        open(intent.getStringExtra("artistName"))
+        dataBase = databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
+        getARtistInfo(intent.getStringExtra("artistName"))
     }
 
     private fun getARtistInfo(artistName: String?) {
-        Log.e("TAG", "artistName $artistName")
         createArticle(artistName, lastFMAPIURLBuilder())
     }
 
@@ -57,7 +58,6 @@ class OtherInfoWindow : Activity() {
             }
 
             val imageUrl ="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
-            Log.e("TAG", "Get Image from $imageUrl")
             runOnUiThread {
                 Picasso.get().load(imageUrl).into(findViewById<View>(R.id.imageView1) as ImageView)
                 articleTextPanel!!.text = Html.fromHtml(textToShowInArticle)
@@ -98,7 +98,6 @@ class OtherInfoWindow : Activity() {
             setViewArticleButton(articleUrl.asString)
 
         } catch (e1: IOException) {
-            Log.e("TAG", "Error $e1")
             e1.printStackTrace()
         }
         return articleText
@@ -127,18 +126,6 @@ class OtherInfoWindow : Activity() {
             intent.setData(Uri.parse(urlString))
             startActivity(intent)
         }
-    }
-
-    private var dataBase: ArticleDatabase? = null
-    private fun open(artist: String?) {
-        dataBase =
-            databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
-        Thread {
-            dataBase!!.ArticleDao().insertArticle(ArticleEntity("test", "sarasa", ""))
-            Log.e("TAG", "" + dataBase!!.ArticleDao().getArticleByArtistName("test"))
-            Log.e("TAG", "" + dataBase!!.ArticleDao().getArticleByArtistName("nada"))
-        }.start()
-        getARtistInfo(artist)
     }
 
     companion object {
