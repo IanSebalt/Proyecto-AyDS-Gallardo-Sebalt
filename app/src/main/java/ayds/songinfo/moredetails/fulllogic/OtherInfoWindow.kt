@@ -5,8 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.room.Room.databaseBuilder
@@ -21,51 +21,71 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.IOException
 import java.util.Locale
 
+data class ArtistBiography(val artistName: String, val biography: String, val articleUrl: String) {
+
+}
+
 class OtherInfoWindow : Activity() {
-    private var articleTextPanel: TextView? = null
-    private var dataBase: ArticleDatabase? = null
+    private lateinit var articleTextPanel: TextView
+    private lateinit var openUrlButton: Button
+
+    private lateinit var articleDatabase: ArticleDatabase
+    private lateinit var lastFMAPI: LastFMAPI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
+        initProperties()
+        initDatabase()
+        initLastFMAPI()
+        getArtistInfoAsync()
+    }
+
+    private fun initProperties() {
         articleTextPanel = findViewById(R.id.textPane1)
-        dataBase = databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
-        getARtistInfo(intent.getStringExtra("artistName"))
+        openUrlButton = findViewById(R.id.openUrlButton1)
     }
 
-    private fun getARtistInfo(artistName: String?) {
-        createArticle(artistName, lastFMAPIURLBuilder())
+    private fun initDatabase() {
+        articleDatabase =
+            databaseBuilder(this, ArticleDatabase::class.java, "database-name-thename").build()
     }
 
-    private fun lastFMAPIURLBuilder(): LastFMAPI {
+    private fun getArtistInfoAsync() {
+        Thread {
+            getArtistInfo()
+        }.start()
+    }
+
+    private fun getArtistInfo() {
+        val articleInDataBase = getArtistInfoFromDB()
+        val textToShowInArticle = if (articleInDataBase != null) {
+            getArticleTextFromDB(articleInDataBase)
+        } else {
+            getArticleTextFromService()
+        }
+
+        runOnUiThread {
+            Picasso.get().load(SOURCE_IMAGE_URL)
+                .into(findViewById<View>(R.id.imageView1) as ImageView)
+            articleTextPanel.text = Html.fromHtml(textToShowInArticle)
+        }
+    }
+
+    private fun getArtistInfoFromDB() =
+        articleDatabase.ArticleDao().getArticleByArtistName(getArtistName())
+
+    private fun getArtistName() = intent.getStringExtra(ARTIST_NAME_EXTRA) ?: ""
+
+    private fun initLastFMAPI() {
         val retrofit = Retrofit.Builder()
             .baseUrl("https://ws.audioscrobbler.com/2.0/")
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
-        return retrofit.create(LastFMAPI::class.java)
+        lastFMAPI = retrofit.create(LastFMAPI::class.java)
     }
 
-    private fun createArticle(
-        artistName: String?,
-        lastFMAPI: LastFMAPI
-    ) {
-        Thread {
-            val articleInDataBase = dataBase!!.ArticleDao().getArticleByArtistName(artistName!!)
-            val textToShowInArticle = if (articleInDataBase != null) {
-                getArticleFromDataBase(articleInDataBase)
-            } else {
-                getArticleFromService(lastFMAPI, artistName)
-            }
-
-            val imageUrl ="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
-            runOnUiThread {
-                Picasso.get().load(imageUrl).into(findViewById<View>(R.id.imageView1) as ImageView)
-                articleTextPanel!!.text = Html.fromHtml(textToShowInArticle)
-            }
-        }.start()
-    }
-
-    private fun getArticleFromDataBase(
+    private fun getArticleTextFromDB(
         articleInDataBase: ArticleEntity
     ): String {
         val textToShowInArticle1 = "[*]" + articleInDataBase.biography
@@ -73,15 +93,12 @@ class OtherInfoWindow : Activity() {
         return textToShowInArticle1
     }
 
-    private fun getArticleFromService(
-        lastFMAPI: LastFMAPI,
-        artistName: String
-    ): String {
+    private fun getArticleTextFromService(): String {
+        val artistName = getArtistName()
         var articleText = ""
         val artistCallResponse: Response<String>
         try {
             artistCallResponse = lastFMAPI.getArtistInfo(artistName).execute()
-            Log.e("TAG", "JSON " + artistCallResponse.body())
             val dataJson = Gson().fromJson(artistCallResponse.body(), JsonObject::class.java)
             val artist = dataJson["artist"].getAsJsonObject()
             val artistBiographyContent = artist["bio"].getAsJsonObject()["content"]
@@ -109,7 +126,7 @@ class OtherInfoWindow : Activity() {
         articleUrl: JsonElement
     ) {
         Thread {
-            dataBase!!.ArticleDao().insertArticle(
+            articleDatabase.ArticleDao().insertArticle(
                 ArticleEntity(
                     artistName, articleText, articleUrl.asString
                 )
@@ -121,7 +138,7 @@ class OtherInfoWindow : Activity() {
 
 
     private fun setViewArticleButton(urlString: String) {
-        findViewById<View>(R.id.openUrlButton1).setOnClickListener {
+        openUrlButton.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setData(Uri.parse(urlString))
             startActivity(intent)
@@ -130,6 +147,8 @@ class OtherInfoWindow : Activity() {
 
     companion object {
         const val ARTIST_NAME_EXTRA = "artistName"
+        const val SOURCE_IMAGE_URL ="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
+
         fun textToHtml(text: String, term: String?): String {
             val builder = StringBuilder()
             builder.append("<html><div width=400>")
