@@ -11,11 +11,10 @@ import android.widget.TextView
 import ayds.observer.Observable
 import ayds.observer.Subject
 import ayds.songinfo.R
-import ayds.songinfo.moredetails.data.local.article.room.ArticleEntity
-import ayds.songinfo.moredetails.fulllogic.ArtistBiography
-import ayds.songinfo.moredetails.fulllogic.OtherInfoWindow
-import ayds.songinfo.moredetails.presentation.MoreDetailsEvent
+import ayds.songinfo.moredetails.domain.Article
+import ayds.songinfo.moredetails.injectors.MoreDetailsInjector
 import com.squareup.picasso.Picasso
+import java.util.Locale
 
 interface MoreDetailsView {
     val uiEventObservable: Observable<MoreDetailsEvent>
@@ -45,9 +44,9 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     }
 
     private fun initModule() {
-        TODO("Cambiar al inyector")
-        moreDetailsPresenter = MoreDetailsPresenterImpl()
-        moreDetailsPresenter.setMoreDetailsView(this)
+        uiState = uiState.copy(artistName = intent.getStringExtra(ARTIST_NAME_EXTRA) ?: "")
+        MoreDetailsInjector.initArticleDatabase(this)
+        moreDetailsPresenter = MoreDetailsInjector.getMoreDetailsModel()
     }
 
     private fun initViewProperties() {
@@ -62,12 +61,12 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         }
     }
 
-    private fun updateArticleInfo(article: ArticleEntity) {
+    private fun updateArticleInfo(article: Article.ArtistArticle) {
         updateArticleUiState(article)
         updateUi()
     }
 
-    private fun updateArticleUiState(article: ArticleEntity) {
+    private fun updateArticleUiState(article: Article.ArtistArticle) {
         uiState = uiState.copy(
             artistName = article.artistName,
             articleUrl = article.articleUrl,
@@ -95,13 +94,13 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     }
 
     private fun updateLastFMLogo() {
-        Picasso.get().load(OtherInfoWindow.LASTFM_IMAGE_URL).into(lastFMImageView)
+        Picasso.get().load(LASTFM_IMAGE_URL).into(lastFMImageView)
     }
 
     private fun updateArticleText() {
         val text = uiState.articleDescription.replace("\n", "<br>")
         articleTextView.text = Html.fromHtml(
-            OtherInfoWindow.textToHtml(
+            textToHtml(
                 text,
                 uiState.artistName
             )
@@ -114,6 +113,27 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
 
     private fun notifyArticleSearch() {
         onActionSubject.notify(MoreDetailsEvent.GetArticle)
+    }
+
+    companion object {
+        const val ARTIST_NAME_EXTRA = "artistName"
+        const val LASTFM_IMAGE_URL ="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
+
+        fun textToHtml(text: String, term: String?): String {
+            val builder = StringBuilder()
+            builder.append("<html><div width=400>")
+            builder.append("<font face=\"arial\">")
+            val textWithBold = text
+                .replace("'", " ")
+                .replace("\n", "<br>")
+                .replace(
+                    "(?i)$term".toRegex(),
+                    "<b>" + term!!.uppercase(Locale.getDefault()) + "</b>"
+                )
+            builder.append(textWithBold)
+            builder.append("</font></div></html>")
+            return builder.toString()
+        }
     }
 
 

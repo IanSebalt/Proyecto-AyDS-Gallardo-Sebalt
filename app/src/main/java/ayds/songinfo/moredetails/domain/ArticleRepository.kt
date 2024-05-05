@@ -4,6 +4,6 @@ import ayds.songinfo.moredetails.domain.Article.ArtistArticle
 
 interface ArticleRepository {
 
-    fun getArticleByArtistName(artistName: String): ArtistArticle?
+    fun getArticleByArtistName(artistName: String): ArtistArticle
 
 }

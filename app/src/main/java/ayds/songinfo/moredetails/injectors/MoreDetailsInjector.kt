@@ -8,11 +8,15 @@ import ayds.songinfo.moredetails.data.local.article.ArticleLocalStorage
 import ayds.songinfo.moredetails.data.local.article.room.ArticleDatabase
 import ayds.songinfo.moredetails.data.local.article.room.ArticleLocalStorageRoomImpl
 import ayds.songinfo.moredetails.domain.ArticleRepository
+import ayds.songinfo.moredetails.presentation.MoreDetailsPresenter
+import ayds.songinfo.moredetails.presentation.MoreDetailsPresenterImpl
 import ayds.songinfo.moredetails.presentation.MoreDetailsView
 
 
 object MoreDetailsInjector{
-    private lateinit var moreDetailsModel: ArticleRepository
+    private lateinit var moreDetailsPresenter: MoreDetailsPresenter
+
+    fun getMoreDetailsModel(): MoreDetailsPresenter = moreDetailsPresenter
 
     fun initArticleDatabase(moreDetailsView: MoreDetailsView) {
         val database = Room.databaseBuilder(
@@ -25,7 +29,9 @@ object MoreDetailsInjector{
         val lastFMService: ArticleLastFMService = LastFMInjector.lastFMApiService
         val repository: ArticleRepository = ArticleRepositoryImpl(lastFMService, articleLocalRoomStorage)
 
-        moreDetailsModel = repository
+        moreDetailsPresenter = MoreDetailsPresenterImpl(repository)
+
+        moreDetailsPresenter.setMoreDetailsView(moreDetailsView)
     }
 
 

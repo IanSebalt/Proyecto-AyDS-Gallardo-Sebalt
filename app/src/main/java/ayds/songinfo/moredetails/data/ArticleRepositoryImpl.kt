@@ -10,7 +10,7 @@ class ArticleRepositoryImpl(
 
 ): ArticleRepository {
 
-    override fun getArticleByArtistName(artistName: String): ArtistArticle? {
+    override fun getArticleByArtistName(artistName: String): ArtistArticle {
 
 
         val dbArticle = articleLocalStorage.getArticle(artistName)
