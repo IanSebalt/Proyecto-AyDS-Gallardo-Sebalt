@@ -4,8 +4,7 @@ import ayds.songinfo.moredetails.data.external.ArticleLastFMService
 import ayds.songinfo.moredetails.data.local.article.ArticleLocalStorage
 import ayds.songinfo.moredetails.domain.Article.ArtistArticle
 import ayds.songinfo.moredetails.domain.ArticleRepository
-import ayds.songinfo.moredetails.fulllogic.ArtistBiography
-class ArticleRepository(
+class ArticleRepositoryImpl(
     private val articleService: ArticleLastFMService,
     private val articleLocalStorage: ArticleLocalStorage
 
@@ -28,5 +27,4 @@ class ArticleRepository(
         }
         return artistBiography
         }
-    }
 }
