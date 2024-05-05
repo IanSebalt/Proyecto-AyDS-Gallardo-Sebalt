@@ -9,8 +9,8 @@ internal class LastFMArticleExternalServiceImpl(
 ) : ArticleLastFMService {
 
     override fun getArticle(artistName: String): ArtistArticle {
-        val articleResponse = lastFMArticleAPI.getArtistInfo(artistName)
-        return lastFMArticleResolver.getArticleDescription(articleResponse)
+        val articleResponse = lastFMArticleAPI.getArtistInfo(artistName).execute()
+        return lastFMArticleResolver.getArticleDescription(articleResponse.body(), artistName)
     }
 
 

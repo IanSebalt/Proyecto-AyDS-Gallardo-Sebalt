@@ -9,7 +9,7 @@ sealed class Article{
     data class ArtistArticle(
         @PrimaryKey
         val artistName: String,
-        val biography: String,
+        var biography: String,
         val articleUrl: String,
     ):Article(){
 
