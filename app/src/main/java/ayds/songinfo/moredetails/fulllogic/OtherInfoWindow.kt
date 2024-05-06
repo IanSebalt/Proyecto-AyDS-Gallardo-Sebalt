@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.room.Room.databaseBuilder
 import ayds.songinfo.R
+import ayds.songinfo.moredetails.data.external.article.lastfm.LastFMAPI
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.squareup.picasso.Picasso
@@ -29,7 +30,7 @@ class OtherInfoWindow : Activity() {
 
     private lateinit var articleDatabase: ArticleDatabase
 
-    /* private lateinit var lastFMAPI: LastFMAPI
+    private lateinit var lastFMAPI: LastFMAPI
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +58,7 @@ class OtherInfoWindow : Activity() {
             .baseUrl(LASTFM_BASE_URL)
             .addConverterFactory(ScalarsConverterFactory.create())
             .build()
-        // lastFMAPI = retrofit.create(LastFMAPI::class.java)
+        lastFMAPI = retrofit.create(LastFMAPI::class.java)
     }
 
     private fun getArtistInfoAsync() {
@@ -127,8 +128,8 @@ class OtherInfoWindow : Activity() {
         return ArtistBiography(artistName, text, url.asString)
     }
 
-    private fun getSongFromService(artistName: String){} //=
-        // lastFMAPI.getArtistInfo(artistName).execute()
+    private fun getSongFromService(artistName: String) =
+        lastFMAPI.getArtistInfo(artistName).execute()
 
     private fun insertArtistIntoDB(artistBiography: ArtistBiography) {
         articleDatabase.ArticleDao().insertArticle(
@@ -190,5 +191,5 @@ class OtherInfoWindow : Activity() {
             builder.append("</font></div></html>")
             return builder.toString()
         }
-    } */
+    }
 }
