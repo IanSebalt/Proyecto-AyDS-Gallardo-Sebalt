@@ -30,8 +30,6 @@ object MoreDetailsInjector{
         val repository: ArticleRepository = ArticleRepositoryImpl(lastFMService, articleLocalRoomStorage)
 
         moreDetailsPresenter = MoreDetailsPresenterImpl(repository)
-
-        moreDetailsPresenter.setMoreDetailsView(moreDetailsView)
     }
 
 

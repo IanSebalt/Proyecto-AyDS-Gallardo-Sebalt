@@ -1,37 +1,33 @@
 package ayds.songinfo.moredetails.presentation
 
 import ayds.observer.Observable
-import ayds.observer.Observer
 import ayds.observer.Subject
-import ayds.songinfo.moredetails.data.local.article.room.ArticleEntity
 import ayds.songinfo.moredetails.domain.Article
 import ayds.songinfo.moredetails.domain.ArticleRepository
 
 interface MoreDetailsPresenter {
-    val articleObservable: Observable<Article.ArtistArticle>
+    val uiState: MoreDetailsState
+    val uiEventObservable: Observable<MoreDetailsEvent>
 
-    fun setMoreDetailsView(moreDetailsView: MoreDetailsView)
+    fun getArticle(artistName: String)
 }
 
 class MoreDetailsPresenterImpl(private val repository: ArticleRepository) : MoreDetailsPresenter {
-    override val articleObservable = Subject<Article.ArtistArticle>()
+    override var uiState: MoreDetailsState = MoreDetailsState()
+    private val onActionSubject = Subject<MoreDetailsEvent>()
 
-    private lateinit var moreDetailsView: MoreDetailsView
+    override val uiEventObservable: Observable<MoreDetailsEvent> = onActionSubject
 
-    override fun setMoreDetailsView(moreDetailsView: MoreDetailsView) {
-        this.moreDetailsView = moreDetailsView
-        moreDetailsView.uiEventObservable.subscribe(observer)
-    }
-
-    private val observer: Observer<MoreDetailsEvent> =
-        Observer { getArticle()
-        }
-
-    private fun getArticle() {
-        var article = Article.ArtistArticle("", "", "")
+    override fun getArticle(artistName: String) {
+        var article: Article.ArtistArticle
         Thread {
-            article = repository.getArticleByArtistName(moreDetailsView.uiState.artistName)
-            articleObservable.notify(article)
+            article = repository.getArticleByArtistName(artistName)
+            uiState = uiState.copy(
+                artistName = article.artistName,
+                articleDescription = article.biography,
+                articleUrl = article.articleUrl,
+            )
+            onActionSubject.notify(MoreDetailsEvent.OpenArticle)
         }.start()
     }
 }

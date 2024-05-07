@@ -8,69 +8,47 @@ import android.text.Html
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import ayds.observer.Observable
-import ayds.observer.Subject
 import ayds.songinfo.R
-import ayds.songinfo.moredetails.domain.Article
 import ayds.songinfo.moredetails.injectors.MoreDetailsInjector
 import com.squareup.picasso.Picasso
 import java.util.Locale
 
 interface MoreDetailsView {
-    val uiEventObservable: Observable<MoreDetailsEvent>
-    val uiState: MoreDetailsState
+
 }
 
 class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     private lateinit var moreDetailsPresenter: MoreDetailsPresenter
 
-    private val onActionSubject = Subject<MoreDetailsEvent>()
-
     private lateinit var articleTextView: TextView
     private lateinit var openUrlButton: Button
     private lateinit var lastFMImageView: ImageView
-
-    override val uiEventObservable: Observable<MoreDetailsEvent> = onActionSubject
-    override var uiState: MoreDetailsState = MoreDetailsState()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_other_info)
 
         initModule()
+        initObserver()
         initViewProperties()
-        initObservers()
         getArtistInfo()
     }
 
     private fun initModule() {
-        uiState = uiState.copy(artistName = intent.getStringExtra(ARTIST_NAME_EXTRA) ?: "")
         MoreDetailsInjector.initArticleDatabase(this)
         moreDetailsPresenter = MoreDetailsInjector.getMoreDetailsModel()
+    }
+
+    private fun initObserver() {
+        moreDetailsPresenter.uiEventObservable.subscribe{
+            updateUi()
+        }
     }
 
     private fun initViewProperties() {
         articleTextView = findViewById(R.id.textPane1)
         openUrlButton = findViewById(R.id.openUrlButton1)
         lastFMImageView = findViewById(R.id.imageView1)
-    }
-
-    private fun initObservers() {
-        moreDetailsPresenter.articleObservable.subscribe {
-            value -> updateArticleInfo(value)
-        }
-    }
-
-    private fun updateArticleInfo(article: Article.ArtistArticle) {
-        updateArticleUiState(article)
-        updateUi()
-    }
-
-    private fun updateArticleUiState(article: Article.ArtistArticle) {
-        uiState = uiState.copy(
-            artistName = article.artistName,
-            articleUrl = article.articleUrl,
-            articleDescription = article.biography)
     }
 
     private fun updateUi() {
@@ -83,7 +61,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
 
     private fun updateOpenUrlButton() {
         openUrlButton.setOnClickListener {
-            navigateToUrl(uiState.articleUrl)
+            navigateToUrl(moreDetailsPresenter.uiState.articleUrl)
         }
     }
 
@@ -98,21 +76,21 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     }
 
     private fun updateArticleText() {
-        val text = uiState.articleDescription.replace("\n", "<br>")
+        val text = moreDetailsPresenter.uiState.articleDescription.replace("\n", "<br>")
         articleTextView.text = Html.fromHtml(
             textToHtml(
                 text,
-                uiState.artistName
+                moreDetailsPresenter.uiState.artistName
             )
         )
     }
 
     private fun getArtistInfo() {
-        notifyArticleSearch()
+        moreDetailsPresenter.getArticle(getArtistName())
     }
 
-    private fun notifyArticleSearch() {
-        onActionSubject.notify(MoreDetailsEvent.GetArticle)
+    private fun getArtistName(): String {
+        return intent.getStringExtra(ARTIST_NAME_EXTRA) ?: ""
     }
 
     companion object {
