@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 
 
 
-@Database(entities = [ArticleEntity::class] , version = 1) //pq con el ::class no tira error de companion
+@Database(entities = [ArticleEntity::class] , version = 1)
 abstract class ArticleDatabase : RoomDatabase() {
     abstract fun ArticleDao(): ArticleDao
 }

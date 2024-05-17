@@ -11,7 +11,6 @@ import android.widget.TextView
 import ayds.songinfo.R
 import ayds.songinfo.moredetails.injectors.MoreDetailsInjector
 import com.squareup.picasso.Picasso
-import java.util.Locale
 
 interface MoreDetailsView {
 
@@ -31,7 +30,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         initModule()
         initObserver()
         initViewProperties()
-        getArtistInfo()
+        getArtistInfoAsync()
     }
 
     private fun initModule() {
@@ -41,7 +40,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
 
     private fun initObserver() {
         moreDetailsPresenter.uiEventObservable.subscribe{
-            updateUi()
+            uiState -> updateUi(uiState)
         }
     }
 
@@ -51,17 +50,23 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         lastFMImageView = findViewById(R.id.imageView1)
     }
 
-    private fun updateUi() {
+    private fun getArtistInfoAsync() {
+        Thread {
+            getArtistInfo()
+        }.start()
+    }
+
+    private fun updateUi(uiState : MoreDetailsState) {
         runOnUiThread() {
-            updateOpenUrlButton()
-            updateLastFMLogo()
-            updateArticleText()
+            updateOpenUrlButton(uiState.articleUrl)
+            updateLastFMLogo(uiState.sourceLogoUrl)
+            updateArticleText(uiState.articleDescription)
         }
     }
 
-    private fun updateOpenUrlButton() {
+    private fun updateOpenUrlButton(url: String) {
         openUrlButton.setOnClickListener {
-            navigateToUrl(moreDetailsPresenter.uiState.articleUrl)
+            navigateToUrl(url)
         }
     }
 
@@ -71,18 +76,12 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         startActivity(intent)
     }
 
-    private fun updateLastFMLogo() {
-        Picasso.get().load(LASTFM_IMAGE_URL).into(lastFMImageView)
+    private fun updateLastFMLogo(url: String) {
+        Picasso.get().load(url).into(lastFMImageView)
     }
 
-    private fun updateArticleText() {
-        val text = moreDetailsPresenter.uiState.articleDescription.replace("\n", "<br>")
-        articleTextView.text = Html.fromHtml(
-            textToHtml(
-                text,
-                moreDetailsPresenter.uiState.artistName
-            )
-        )
+    private fun updateArticleText(articleDescription: String) {
+        articleTextView.text = Html.fromHtml(articleDescription)
     }
 
     private fun getArtistInfo() {
@@ -90,28 +89,11 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     }
 
     private fun getArtistName(): String {
-        return intent.getStringExtra(ARTIST_NAME_EXTRA) ?: ""
+        return intent.getStringExtra(ARTIST_NAME_EXTRA) ?: throw Exception("No artist name")
     }
 
     companion object {
         const val ARTIST_NAME_EXTRA = "artistName"
-        const val LASTFM_IMAGE_URL ="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
-
-        fun textToHtml(text: String, term: String?): String {
-            val builder = StringBuilder()
-            builder.append("<html><div width=400>")
-            builder.append("<font face=\"arial\">")
-            val textWithBold = text
-                .replace("'", " ")
-                .replace("\n", "<br>")
-                .replace(
-                    "(?i)$term".toRegex(),
-                    "<b>" + term!!.uppercase(Locale.getDefault()) + "</b>"
-                )
-            builder.append(textWithBold)
-            builder.append("</font></div></html>")
-            return builder.toString()
-        }
     }
 
 

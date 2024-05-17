@@ -9,8 +9,9 @@ sealed class Article{
     data class ArtistArticle(
         @PrimaryKey
         val artistName: String,
-        var biography: String,
+        val biography: String,
         val articleUrl: String,
+        var isLocallyStored: Boolean = false
     ):Article(){
 
     }
