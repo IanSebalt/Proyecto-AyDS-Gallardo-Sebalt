@@ -6,7 +6,7 @@ import ayds.songinfo.moredetails.domain.Article.ArtistArticle
 import ayds.songinfo.moredetails.domain.ArticleRepository
 
 interface MoreDetailsPresenter {
-    val uiEventObservable: Observable<MoreDetailsState>
+    var uiEventObservable: Observable<MoreDetailsState>
 
     fun getArticle(artistName: String)
 }
@@ -14,7 +14,7 @@ interface MoreDetailsPresenter {
 class MoreDetailsPresenterImpl(private val repository: ArticleRepository, private val artistArticleDescriptionHelper: ArtistBiographyDescriptionHelper) : MoreDetailsPresenter {
     private val onActionSubject = Subject<MoreDetailsState>()
 
-    override val uiEventObservable: Observable<MoreDetailsState> = onActionSubject
+    override var uiEventObservable: Observable<MoreDetailsState> = onActionSubject
 
     override fun getArticle(artistName: String) {
         val article = repository.getArticleByArtistName(artistName)

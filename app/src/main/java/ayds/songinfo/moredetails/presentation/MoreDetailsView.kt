@@ -14,6 +14,8 @@ import com.squareup.picasso.Picasso
 
 interface MoreDetailsView {
 
+
+
 }
 
 class MoreDetailsViewActivity : MoreDetailsView, Activity() {

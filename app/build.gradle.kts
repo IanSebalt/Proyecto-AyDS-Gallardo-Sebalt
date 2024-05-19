@@ -44,9 +44,14 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.picasso)
     implementation(libs.androidx.room)
+    implementation(libs.junit)
+    implementation(libs.mockk)
+    val kotlinVersion = "1.5.31"
+    implementation("org.jetbrains.kotlin:kotlin-reflect: ${kotlinVersion}")
 
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
