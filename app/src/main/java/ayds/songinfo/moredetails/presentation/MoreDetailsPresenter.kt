@@ -11,7 +11,7 @@ interface MoreDetailsPresenter {
     fun getArticle(artistName: String)
 }
 
-class MoreDetailsPresenterImpl(private val repository: ArticleRepository, private val artistArticleDescriptionHelper: ArtistBiographyDescriptionHelper) : MoreDetailsPresenter {
+class MoreDetailsPresenterImpl(private val repository: ArticleRepository, private val artistArticleDescriptionHelper: ArtistArticleDescriptionHelper) : MoreDetailsPresenter {
     private val onActionSubject = Subject<MoreDetailsState>()
 
     override var uiEventObservable: Observable<MoreDetailsState> = onActionSubject

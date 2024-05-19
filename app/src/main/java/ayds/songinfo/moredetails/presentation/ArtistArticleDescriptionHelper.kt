@@ -3,14 +3,14 @@ package ayds.songinfo.moredetails.presentation
 import ayds.songinfo.moredetails.domain.Article.ArtistArticle
 import java.util.Locale
 
-interface ArtistBiographyDescriptionHelper {
+interface ArtistArticleDescriptionHelper {
     fun getDescription(artistBiography: ArtistArticle): String
 }
 
 private const val HEADER = "<html><div width=400><font face=\"arial\">"
 private const val FOOTER = "</font></div></html>"
 
-internal class ArtistBiographyDescriptionHelperImpl : ArtistBiographyDescriptionHelper {
+internal class ArtistArticleDescriptionHelperImpl : ArtistArticleDescriptionHelper {
 
     override fun getDescription(artistBiography: ArtistArticle): String {
         val text = getTextBiography(artistBiography)

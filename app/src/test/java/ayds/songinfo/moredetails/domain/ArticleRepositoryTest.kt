@@ -16,7 +16,7 @@ class ArticleRepositoryTest {
 
     private val articleRepository: ArticleRepository = ArticleRepositoryImpl(articleService, articleLocalRepository)
     @Test
-    fun givenANullLocalArticleItShouldReturnARemoteArticle() {
+    fun `given a non-locally-stored article it should return a remote article`() {
         val artistName = "Gustavo Cerati"
         val remoteArticle = Article.ArtistArticle("Gustavo Cerati", "Biography", "info", false)
         every { articleLocalRepository.getArticle(artistName) } returns null
@@ -29,7 +29,7 @@ class ArticleRepositoryTest {
     }
 
     @Test
-    fun  givenALocalArticleItShouldBeLocallyStored() {
+    fun  `given a locally stored article it should be locally stored and not stored again`() {
         val artistName = "Gustavo Cerati"
         val localArticle = Article.ArtistArticle("Gustavo Cerati", "Biography", "info", true)
         every { articleLocalRepository.getArticle(artistName) } returns localArticle
@@ -41,7 +41,7 @@ class ArticleRepositoryTest {
     }
 
     @Test
-    fun givenARemoteNullBiographyItShouldntBeStored() {
+    fun `given a non existent remotely retrieved article it shouldnt be stored`() {
         val artistName = "artistName"
         val remoteArticle = Article.ArtistArticle("artistName", "", "", false)
         every { articleLocalRepository.getArticle(artistName) } returns null

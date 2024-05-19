@@ -8,7 +8,7 @@ import ayds.songinfo.moredetails.data.local.article.ArticleLocalStorage
 import ayds.songinfo.moredetails.data.local.article.room.ArticleDatabase
 import ayds.songinfo.moredetails.data.local.article.room.ArticleLocalStorageRoomImpl
 import ayds.songinfo.moredetails.domain.ArticleRepository
-import ayds.songinfo.moredetails.presentation.ArtistBiographyDescriptionHelperImpl
+import ayds.songinfo.moredetails.presentation.ArtistArticleDescriptionHelperImpl
 import ayds.songinfo.moredetails.presentation.MoreDetailsPresenter
 import ayds.songinfo.moredetails.presentation.MoreDetailsPresenterImpl
 import ayds.songinfo.moredetails.presentation.MoreDetailsView
@@ -30,7 +30,7 @@ object MoreDetailsInjector{
         val lastFMService: ArticleLastFMService = LastFMInjector.lastFMApiService
         val repository: ArticleRepository = ArticleRepositoryImpl(lastFMService, articleLocalRoomStorage)
 
-        val artistBiographyDescriptionHelper = ArtistBiographyDescriptionHelperImpl()
+        val artistBiographyDescriptionHelper = ArtistArticleDescriptionHelperImpl()
 
         moreDetailsPresenter = MoreDetailsPresenterImpl(repository, artistBiographyDescriptionHelper)
     }
