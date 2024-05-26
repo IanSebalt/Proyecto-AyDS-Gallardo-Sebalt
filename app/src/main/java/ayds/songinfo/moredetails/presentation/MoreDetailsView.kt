@@ -24,6 +24,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     private lateinit var articleTextView: TextView
     private lateinit var openUrlButton: Button
     private lateinit var lastFMImageView: ImageView
+    private lateinit var sourceLabel1: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +51,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         articleTextView = findViewById(R.id.textPane1)
         openUrlButton = findViewById(R.id.openUrlButton1)
         lastFMImageView = findViewById(R.id.imageView1)
+        sourceLabel1 = findViewById(R.id.sourceLabel1)
     }
 
     private fun getArtistInfoAsync() {
@@ -61,6 +63,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     private fun updateUi(uiState : MoreDetailsState) {
         runOnUiThread() {
             updateOpenUrlButton(uiState.articleUrl)
+            updateSourceLabel(uiState.source)
             updateLastFMLogo(uiState.sourceLogoUrl)
             updateArticleText(uiState.articleDescription)
         }
@@ -70,6 +73,10 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         openUrlButton.setOnClickListener {
             navigateToUrl(url)
         }
+    }
+
+    private fun updateSourceLabel(source: String) {
+        sourceLabel1.text = source
     }
 
     private fun navigateToUrl(url: String) {

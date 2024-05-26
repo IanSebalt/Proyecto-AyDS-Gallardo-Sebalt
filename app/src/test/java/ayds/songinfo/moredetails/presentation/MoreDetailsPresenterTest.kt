@@ -1,22 +1,22 @@
 package ayds.songinfo.moredetails.presentation
 
-import ayds.songinfo.moredetails.domain.Article
-import ayds.songinfo.moredetails.domain.ArticleRepository
+import ayds.songinfo.moredetails.domain.Card
+import ayds.songinfo.moredetails.domain.CardRepository
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
 
 class MoreDetailsPresenterTest{
-    private val articleRepository: ArticleRepository = mockk{
-        every { getArticleByArtistName(any()) } returns Article.ArtistArticle("Gustavo Cerati", "Biography", "info")
+    private val cardRepository: CardRepository = mockk{
+        every { getCardByArtistName(any()) } returns Card("Gustavo Cerati", "Biography", "info")
     }
 
-    private val articleDescriptionHelper: ArtistArticleDescriptionHelper = mockk{
+    private val articleDescriptionHelper: CardDescriptionHelper = mockk{
         every { getDescription(any()) } returns "Biography"
     }
 
-    private val presenter: MoreDetailsPresenter = MoreDetailsPresenterImpl(articleRepository, articleDescriptionHelper)
+    private val presenter: MoreDetailsPresenter = MoreDetailsPresenterImpl(cardRepository, articleDescriptionHelper)
 
 
      @Test
@@ -24,7 +24,7 @@ class MoreDetailsPresenterTest{
         val artistName = "Gustavo Cerati"
         val articleTester: (MoreDetailsState) -> Unit = mockk(relaxed = true)
 
-        val uiState = MoreDetailsState(artistName, "Biography", "info")
+        val uiState = MoreDetailsState(artistName, "Biography", "info", "LastFM")
 
         presenter.uiEventObservable.subscribe {
             articleTester(it)

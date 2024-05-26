@@ -1,18 +1,18 @@
 package ayds.songinfo.moredetails.presentation
 
-import ayds.songinfo.moredetails.domain.Article
+import ayds.songinfo.moredetails.domain.Card
 import org.junit.Assert
 import org.junit.Test
 
-class ArtistArticleDescriptionHelperTest {
-    private val articleDescriptionHelper: ArtistArticleDescriptionHelper = ArtistArticleDescriptionHelperImpl()
+class CardDescriptionHelperTest {
+    private val articleDescriptionHelper: CardDescriptionHelper = CardDescriptionHelperImpl()
 
 
     @Test
     fun `given a locally stored article it should return the marked article description`(){
-        val artistArticle = Article.ArtistArticle("Gustavo Cerati", "Biography", "info", true)
+        val card = Card("Gustavo Cerati", "Biography", "info", isLocallyStored = true)
 
-        val result = articleDescriptionHelper.getDescription(artistArticle)
+        val result = articleDescriptionHelper.getDescription(card)
 
         val expectedResult = "<html><div width=400><font face=\"arial\">[*] Biography</font></div></html>"
 
@@ -21,9 +21,9 @@ class ArtistArticleDescriptionHelperTest {
 
     @Test
     fun `given a non-locally stored article it should return the unmarked article description`(){
-        val artistArticle = Article.ArtistArticle("Gustavo Cerati", "Biography", "info", false)
+        val card = Card("Gustavo Cerati", "Biography", "info", isLocallyStored = false)
 
-        val result = articleDescriptionHelper.getDescription(artistArticle)
+        val result = articleDescriptionHelper.getDescription(card)
 
         val expectedResult = "<html><div width=400><font face=\"arial\">Biography</font></div></html>"
 

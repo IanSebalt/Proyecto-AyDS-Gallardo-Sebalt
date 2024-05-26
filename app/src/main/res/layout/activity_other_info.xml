@@ -27,6 +27,12 @@
                 android:paddingTop="24dp"/>
 
             <TextView
+                android:id="@+id/sourceLabel1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
+
+            <TextView
                 android:id="@+id/textPane1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -47,6 +53,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:paddingTop="24dp"/>
+
+            <TextView
+                android:id="@+id/sourceLabel2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
 
             <TextView
                 android:id="@+id/textPane2"
@@ -70,6 +82,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:paddingTop="24dp"/>
+
+            <TextView
+                android:id="@+id/sourceLabel3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="16dp" />
 
             <TextView
                 android:id="@+id/textPane3"
