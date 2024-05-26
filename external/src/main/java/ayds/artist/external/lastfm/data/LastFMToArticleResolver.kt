@@ -1,6 +1,6 @@
-package ayds.songinfo.moredetails.data.external.article.lastfm
+package ayds.artist.external.lastfm.data
 
-import ayds.songinfo.moredetails.domain.Article.ArtistArticle
+import ayds.artist.external.lastfm.data.LastFmArticle.ArtistArticle
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 

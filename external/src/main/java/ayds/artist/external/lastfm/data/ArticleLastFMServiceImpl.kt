@@ -1,7 +1,5 @@
-package ayds.songinfo.moredetails.data.external.article.lastfm
+package ayds.artist.external.lastfm.data
 
-import ayds.songinfo.moredetails.data.external.ArticleLastFMService
-import ayds.songinfo.moredetails.domain.Article.ArtistArticle
 import java.io.IOException
 
 
@@ -10,8 +8,8 @@ internal class ArticleLastFMServiceImpl(
     private val lastFMArticleResolver: LastFMToArticleResolver
 ) : ArticleLastFMService {
 
-    override fun getArticle(artistName: String): ArtistArticle {
-        var artistArticle = ArtistArticle(artistName, "", "")
+    override fun getArticle(artistName: String): LastFmArticle.ArtistArticle {
+        var artistArticle = LastFmArticle.ArtistArticle(artistName, "", "")
         try{
             val articleResponse = getArticleFromService(artistName)
             artistArticle = lastFMArticleResolver.getArticleDescription(articleResponse.body(), artistName)

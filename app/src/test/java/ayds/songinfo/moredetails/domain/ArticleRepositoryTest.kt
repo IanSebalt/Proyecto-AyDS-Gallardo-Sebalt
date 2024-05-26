@@ -1,6 +1,6 @@
 package ayds.songinfo.moredetails.data
 
-import ayds.songinfo.moredetails.data.external.ArticleLastFMService
+import ayds.artist.external.lastfm.data.ArticleLastFMService
 import ayds.songinfo.moredetails.data.local.article.ArticleLocalStorage
 import ayds.songinfo.moredetails.domain.Article
 import ayds.songinfo.moredetails.domain.ArticleRepository
@@ -13,14 +13,15 @@ import org.junit.Test
 class ArticleRepositoryTest {
     private val articleLocalRepository: ArticleLocalStorage = mockk(relaxUnitFun = true)
     private val articleService: ArticleLastFMService = mockk(relaxUnitFun = true)
+    private val articleToCardResolver: ArticleToCardResolver = mockk(relaxUnitFun = true)
 
-    private val articleRepository: ArticleRepository = ArticleRepositoryImpl(articleService, articleLocalRepository)
+    private val articleRepository: ArticleRepository = ArticleRepositoryImpl(articleService, articleLocalRepository, articleToCardResolver)
     @Test
     fun `given a non-locally-stored article it should return a remote article`() {
         val artistName = "Gustavo Cerati"
         val remoteArticle = Article.ArtistArticle("Gustavo Cerati", "Biography", "info", false)
         every { articleLocalRepository.getArticle(artistName) } returns null
-        every { articleService.getArticle(artistName) } returns remoteArticle
+        every { articleToCardResolver.LastFmArticleToCard(articleService.getArticle(artistName)) } returns remoteArticle
 
         val result = articleRepository.getArticleByArtistName(artistName)
 
@@ -45,7 +46,7 @@ class ArticleRepositoryTest {
         val artistName = "artistName"
         val remoteArticle = Article.ArtistArticle("artistName", "", "", false)
         every { articleLocalRepository.getArticle(artistName) } returns null
-        every { articleService.getArticle(artistName) } returns remoteArticle
+        every { articleToCardResolver.LastFmArticleToCard(articleService.getArticle(artistName)) } returns remoteArticle
 
         val result = articleRepository.getArticleByArtistName(artistName)
 
