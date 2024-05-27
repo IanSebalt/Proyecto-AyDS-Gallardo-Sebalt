@@ -37,7 +37,7 @@ class MoreDetailsPresenterTest {
             articleTester(it)
         }
 
-        presenter.getArticle(artistName)
+        presenter.updateCard(artistName)
 
         verify{ articleTester(uiState) }
     }

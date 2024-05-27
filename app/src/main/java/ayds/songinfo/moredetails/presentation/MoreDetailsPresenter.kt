@@ -8,7 +8,7 @@ import ayds.songinfo.moredetails.domain.Card
 interface MoreDetailsPresenter {
     var uiEventObservable: Observable<MoreDetailsState>
 
-    fun getArticle(artistName: String)
+    fun updateCard(artistName: String)
 }
 
 class MoreDetailsPresenterImpl(private val repository: CardRepository, private val cardDescriptionHelper: CardDescriptionHelper) : MoreDetailsPresenter {
@@ -16,7 +16,7 @@ class MoreDetailsPresenterImpl(private val repository: CardRepository, private v
 
     override var uiEventObservable: Observable<MoreDetailsState> = onActionSubject
 
-    override fun getArticle(artistName: String) {
+    override fun updateCard(artistName: String) {
         val card = repository.getCardByArtistName(artistName)
 
         val uiState = card.toUiState()
@@ -26,8 +26,8 @@ class MoreDetailsPresenterImpl(private val repository: CardRepository, private v
 
     private fun Card.toUiState() = MoreDetailsState(
         artistName = artistName,
-        articleDescription = cardDescriptionHelper.getDescription(this),
-        articleUrl = infoUrl,
+        description = cardDescriptionHelper.getDescription(this),
+        url = infoUrl,
         source = source
     )
 }

@@ -13,12 +13,12 @@ class CardRepositoryImpl(
 ): CardRepository {
 
     override fun getCardByArtistName(artistName: String): Card {
-        val dbArticle = articleLocalStorage.getArticle(artistName)
+        val dbCards = articleLocalStorage.getArticle(artistName)
 
         val artistCard : Card
 
-        if (dbArticle != null) {
-            artistCard = dbArticle.apply { markItAsLocal() }
+        if (dbCards != null) {
+            artistCard = dbCards.apply { markItAsLocal() }
         } else {
             artistCard = articleToCardResolver.lastFmArticleToCard(articleService.getArticle(artistName))
             if(artistCard.description.isNotEmpty()) {

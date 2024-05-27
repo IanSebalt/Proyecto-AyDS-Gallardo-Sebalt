@@ -21,9 +21,9 @@ interface MoreDetailsView {
 class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     private lateinit var moreDetailsPresenter: MoreDetailsPresenter
 
-    private lateinit var articleTextView: TextView
+    private lateinit var cardDescriptionTextView: TextView
     private lateinit var openUrlButton: Button
-    private lateinit var lastFMImageView: ImageView
+    private lateinit var sourceImageView: ImageView
     private lateinit var sourceLabel1: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +33,7 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
         initModule()
         initObserver()
         initViewProperties()
-        getArtistInfoAsync()
+        getArtistCardAsync()
     }
 
     private fun initModule() {
@@ -48,24 +48,24 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     }
 
     private fun initViewProperties() {
-        articleTextView = findViewById(R.id.textPane1)
+        cardDescriptionTextView = findViewById(R.id.textPane1)
         openUrlButton = findViewById(R.id.openUrlButton1)
-        lastFMImageView = findViewById(R.id.imageView1)
+        sourceImageView = findViewById(R.id.imageView1)
         sourceLabel1 = findViewById(R.id.sourceLabel1)
     }
 
-    private fun getArtistInfoAsync() {
+    private fun getArtistCardAsync() {
         Thread {
-            getArtistInfo()
+            getArtistCard()
         }.start()
     }
 
     private fun updateUi(uiState : MoreDetailsState) {
         runOnUiThread() {
-            updateOpenUrlButton(uiState.articleUrl)
+            updateOpenUrlButton(uiState.url)
             updateSourceLabel(uiState.source)
             updateLastFMLogo(uiState.sourceLogoUrl)
-            updateArticleText(uiState.articleDescription)
+            updateArticleText(uiState.description)
         }
     }
 
@@ -86,15 +86,15 @@ class MoreDetailsViewActivity : MoreDetailsView, Activity() {
     }
 
     private fun updateLastFMLogo(url: String) {
-        Picasso.get().load(url).into(lastFMImageView)
+        Picasso.get().load(url).into(sourceImageView)
     }
 
     private fun updateArticleText(articleDescription: String) {
-        articleTextView.text = Html.fromHtml(articleDescription)
+        cardDescriptionTextView.text = Html.fromHtml(articleDescription)
     }
 
-    private fun getArtistInfo() {
-        moreDetailsPresenter.getArticle(getArtistName())
+    private fun getArtistCard() {
+        moreDetailsPresenter.updateCard(getArtistName())
     }
 
     private fun getArtistName(): String {

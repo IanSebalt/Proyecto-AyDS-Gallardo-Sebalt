@@ -8,8 +8,8 @@ internal class ArticleLastFMServiceImpl(
     private val lastFMArticleResolver: LastFMToArticleResolver
 ) : ArticleLastFMService {
 
-    override fun getArticle(artistName: String): LastFmArticle.ArtistArticle {
-        var artistArticle = LastFmArticle.ArtistArticle(artistName, "", "")
+    override fun getArticle(artistName: String): LastFmArticle {
+        var artistArticle = LastFmArticle(artistName, "", "")
         try{
             val articleResponse = getArticleFromService(artistName)
             artistArticle = lastFMArticleResolver.getArticleDescription(articleResponse.body(), artistName)

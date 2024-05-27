@@ -1,11 +1,10 @@
 package ayds.artist.external.lastfm.data
 
-import ayds.artist.external.lastfm.data.LastFmArticle.ArtistArticle
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 
 interface LastFMToArticleResolver {
-    fun getArticleDescription(serviceData: String?, artistName: String): ArtistArticle
+    fun getArticleDescription(serviceData: String?, artistName: String): LastFmArticle
 }
 
 
@@ -17,7 +16,7 @@ private const val URL = "url"
 
 internal class LastFMToArticleResolverImpl: LastFMToArticleResolver {
 
-    override fun getArticleDescription(serviceData: String?,artistName: String): ArtistArticle {
+    override fun getArticleDescription(serviceData: String?,artistName: String): LastFmArticle {
         val gson = Gson()
         val jobj = gson.fromJson(serviceData, JsonObject::class.java)
 
@@ -27,7 +26,7 @@ internal class LastFMToArticleResolverImpl: LastFMToArticleResolver {
         val url = artist.getUrl()
         val textBio = extract?: "No Results"
 
-        return ArtistArticle(artistName, textBio, url)
+        return LastFmArticle(artistName, textBio, url)
 
     }
 
