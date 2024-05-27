@@ -7,24 +7,31 @@ import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Test
 
-class MoreDetailsPresenterTest{
-    private val cardRepository: CardRepository = mockk{
-        every { getCardByArtistName(any()) } returns Card("Gustavo Cerati", "Biography", "info")
-    }
+class MoreDetailsPresenterTest {
+    private val cardRepository: CardRepository = mockk(relaxed = true)
 
-    private val articleDescriptionHelper: CardDescriptionHelper = mockk{
-        every { getDescription(any()) } returns "Biography"
-    }
+    private val cardDescriptionHelper: CardDescriptionHelper = mockk(relaxed = true)
 
-    private val presenter: MoreDetailsPresenter = MoreDetailsPresenterImpl(cardRepository, articleDescriptionHelper)
-
+    private val presenter: MoreDetailsPresenter = MoreDetailsPresenterImpl(cardRepository, cardDescriptionHelper)
 
      @Test
     fun `on call to get the article with an existing artist name should notify with a complete uiState`(){
         val artistName = "Gustavo Cerati"
         val articleTester: (MoreDetailsState) -> Unit = mockk(relaxed = true)
-
+        val card = Card(
+            artistName = artistName,
+            description = "Biography",
+            infoUrl = "info"
+        )
         val uiState = MoreDetailsState(artistName, "Biography", "info", "LastFM")
+
+        every {
+            cardDescriptionHelper.getDescription(any())
+        } returns "Biography"
+
+        every {
+            cardRepository.getCardByArtistName(artistName)
+        } returns card
 
         presenter.uiEventObservable.subscribe {
             articleTester(it)
