@@ -20,8 +20,8 @@ class MoreDetailsPresenterTest {
         val articleTester: (MoreDetailsState) -> Unit = mockk(relaxed = true)
         val card = Card(
             artistName = artistName,
-            description = "Biography",
-            infoUrl = "info"
+            text = "Biography",
+            url = "info"
         )
         val uiState = MoreDetailsState(artistName, "Biography", "info", "LastFM")
 
@@ -30,7 +30,7 @@ class MoreDetailsPresenterTest {
         } returns "Biography"
 
         every {
-            cardRepository.getCardByArtistName(artistName)
+            cardRepository.getCardsByArtistName(artistName)
         } returns card
 
         presenter.uiEventObservable.subscribe {

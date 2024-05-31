@@ -1,31 +1,34 @@
 package ayds.songinfo.moredetails.data
 
-import ayds.artist.external.lastfm.data.ArticleLastFMService
-import ayds.songinfo.moredetails.data.local.article.ArticleLocalStorage
+import ayds.songinfo.moredetails.data.broker.Broker
+import ayds.songinfo.moredetails.data.local.article.CardLocalStorage
 import ayds.songinfo.moredetails.domain.CardRepository
 import ayds.songinfo.moredetails.domain.Card
 
 class CardRepositoryImpl(
-    private val articleService: ArticleLastFMService,
-    private val articleLocalStorage: ArticleLocalStorage,
-    private val articleToCardResolver: ArticleToCardResolver
-
+    private val broker: Broker,
+    private val cardLocalStorage: CardLocalStorage,
 ): CardRepository {
 
-    override fun getCardByArtistName(artistName: String): Card {
-        val dbCards = articleLocalStorage.getArticle(artistName)
+    override fun getCardsByArtistName(artistName: String): List<Card> {
+        val dbCards = cardLocalStorage.getCards(artistName)
 
-        val artistCard : Card
+        var artistCards : List<Card>
 
-        if (dbCards != null) {
-            artistCard = dbCards.apply { markItAsLocal() }
+        if (dbCards.isNotEmpty()) {
+            for (card in dbCards) {
+                card.apply { markItAsLocal() }
+            }
+            artistCards = dbCards
         } else {
-            artistCard = articleToCardResolver.lastFmArticleToCard(articleService.getArticle(artistName))
-            if(artistCard.description.isNotEmpty()) {
-                articleLocalStorage.saveArticle(artistCard)
+            artistCards = broker.getCards(artistName)
+            for (card in artistCards) {
+                if (card.text != "") {
+                    cardLocalStorage.insertCard(card)
+                }
             }
         }
-        return artistCard
+        return artistCards
     }
 
     private fun Card.markItAsLocal() {
