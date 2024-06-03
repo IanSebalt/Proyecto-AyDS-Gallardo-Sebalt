@@ -19,7 +19,7 @@ internal class CardLocalStorageRoomImpl(
             for (card in cards) {
                 cardList.add(
                     Card(
-                        card.artistName, card.content, card.url, CardSource.values()[card.source]
+                        card.artistName, card.content, card.url, CardSource.values()[card.source], card.logoUrl
                     )
                 )
             }
@@ -30,7 +30,7 @@ internal class CardLocalStorageRoomImpl(
     override fun insertCard(card: Card) {
         cardDatabase.CardDao().insertCard(
             CardEntity(
-                card.text, card.artistName, card.url, card.source.ordinal
+                card.text, card.artistName, card.url, card.source.ordinal, card.logoUrl
             )
         )
     }

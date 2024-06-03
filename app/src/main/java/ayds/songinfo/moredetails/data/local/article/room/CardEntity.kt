@@ -1,15 +1,14 @@
 package ayds.songinfo.moredetails.data.local.article.room
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
 
-@Entity
+@Entity(primaryKeys = ["artistName", "source"])
 data class CardEntity(
-    @PrimaryKey
-    val content: String,
     val artistName: String,
+    val content: String,
     val url: String,
-    val source: Int
+    val source: Int,
+    val logoUrl: String,
 )
 

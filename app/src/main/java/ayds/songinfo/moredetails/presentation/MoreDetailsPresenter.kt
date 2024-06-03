@@ -23,8 +23,6 @@ class MoreDetailsPresenterImpl(private val repository: CardRepository, private v
 
         val uiStateList = card.map { it.toUiState() }
 
-        print("MoreDetailsPresenterImpl: updateCard: uiStateList: $uiStateList")
-
         onActionSubject.notify(uiStateList)
     }
 
@@ -33,15 +31,6 @@ class MoreDetailsPresenterImpl(private val repository: CardRepository, private v
         description = cardDescriptionHelper.getDescription(this),
         url = url,
         source = source.name,
-        sourceLogoUrl = resolveSourceLogoUrl()
+        sourceLogoUrl = logoUrl
     )
-
-
-
-    private fun Card.resolveSourceLogoUrl() =
-        when (source) {
-            CardSource.LAST_FM -> "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Lastfm_logo.svg/320px-Lastfm_logo.svg.png"
-            CardSource.WIKIPEDIA -> "https://upload.wikimedia.org/wikipedia/commons/8/8c/Wikipedia-logo-v2-es.png"
-            CardSource.NY_TIMES -> "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVioI832nuYIXqzySD8cOXRZEcdlAj3KfxA62UEC4FhrHVe0f7oZXp3_mSFG7nIcUKhg&usqp=CAU"
-        }
 }

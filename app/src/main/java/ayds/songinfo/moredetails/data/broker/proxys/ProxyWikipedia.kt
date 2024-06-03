@@ -17,13 +17,14 @@ class ProxyWikipediaImpl(private val articleService: WikipediaTrackService): Pro
 
     private fun resolveArticleToCard(wikipediaArticle: WikipediaArticle?, artistName: String): Card {
         if (wikipediaArticle == null) {
-            return Card(artistName, "", "", CardSource.WIKIPEDIA)
+            return Card(artistName, "", "", CardSource.WIKIPEDIA, "")
         }
         return Card(
             artistName,
             wikipediaArticle.description,
             wikipediaArticle.wikipediaURL,
-            CardSource.WIKIPEDIA
+            CardSource.WIKIPEDIA,
+            wikipediaArticle.wikipediaLogoURL
         )
     }
 

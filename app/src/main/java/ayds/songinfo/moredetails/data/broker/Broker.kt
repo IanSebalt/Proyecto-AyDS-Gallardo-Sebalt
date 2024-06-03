@@ -19,13 +19,13 @@ class BrokerImpl(
         val lastFmCard:Card = proxyLastFm.getArticle(artistName)
         val wikipediaCard:Card = proxyWikipedia.getArticle(artistName)
         val nyTimesCard:Card = proxyNYTimes.getArticle(artistName)
-        if (lastFmCard.text != "") {
+        if (lastFmCard.text.isNotEmpty()) {
             cards.add(lastFmCard)
         }
-        if (wikipediaCard.text != "") {
+        if (wikipediaCard.text.isNotEmpty()) {
             cards.add(wikipediaCard)
         }
-        if (nyTimesCard.text != "") {
+        if (nyTimesCard.text.isNotEmpty()) {
             cards.add(nyTimesCard)
         }
         return cards

@@ -22,11 +22,8 @@ class CardRepositoryImpl(
             artistCards = dbCards
         } else {
             artistCards = broker.getCards(artistName)
-            for (card in artistCards) {
-                if (card.text != "") {
-                    cardLocalStorage.insertCard(card)
-                }
-            }
+
+            artistCards.forEach { cardLocalStorage.insertCard(it)}
         }
         return artistCards
     }
